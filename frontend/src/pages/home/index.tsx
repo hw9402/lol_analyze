@@ -10,7 +10,6 @@ const Home = () => {
 
   const onPressEnter = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      localStorage.setItem("name", name.replace("#", "-"));
       window.location.href = `/${name.replace("#", "-")}`;
     }
   };
