@@ -56,6 +56,7 @@ def getRecentRecord(name: str):
     for k, v in {0: first, 1: second, 2: third}.items():
         top_3_most[k] = {
             "name": v.select_one("td:nth-child(1)").get_text().strip(),
+            "img": "https:" + v.select_one("td:nth-child(1)").find("img")["src"],
             "count": v.select_one("td:nth-child(2)").get_text(),
             "win_rate": v.select_one("td:nth-child(3)").get_text(),
             "win": v.select_one("td:nth-child(13)").get_text(),
