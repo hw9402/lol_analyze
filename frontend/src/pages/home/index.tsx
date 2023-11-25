@@ -1,11 +1,30 @@
 import styled from "styled-components";
+import {useState, KeyboardEvent, ChangeEvent} from "react";
 
 const Home = () => {
+  const [name, setName] = useState<string>("");
+
+  const handleName = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const onPressEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      localStorage.setItem("name", name.replace("#", "-"));
+      window.location.href = `/${name.replace("#", "-")}`;
+    }
+  };
+
   return (
     <>
       <Container>
         <Title>LoL.gg 리그오브레전드 통계 사이트</Title>
-        <SearchBox placeholder="소환사 이름#태그를 입력해주세요!" />
+        <SearchBox
+          placeholder="소환사 이름#태그를 입력해주세요!"
+          onChange={handleName}
+          onKeyPress={onPressEnter}
+          value={name}
+        />
       </Container>
     </>
   )
