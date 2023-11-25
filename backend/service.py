@@ -3,7 +3,11 @@ from bs4 import BeautifulSoup
 
 
 def getLoLHistory(name: str):
-    return {"rank": getRankInfo(name), "most": getRecentRecord(name)}
+    return {
+        "profile": getProfile(name),
+        "rank": getRankInfo(name),
+        "most": getRecentRecord(name)
+    }
 
 
 def getRankInfo(name: str):
@@ -72,3 +76,18 @@ def getRecentRecord(name: str):
         }
 
     return top_3_most
+
+
+def getProfile(name: str):
+    response = requests.get(f"https://fow.kr/find/{name}")
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    get_profile = soup.select_one(
+        "#content-container > div:nth-child(1) > div:nth-child(2) > div.topp > div.profile > div:nth-child(1)")
+    get_level = soup.select_one(
+        "#content-container > div:nth-child(1) > div:nth-child(2) > div.topp > div.profile > div:nth-child(2) > a:nth-child(1) > span")
+
+    return {
+        "profile_image": "https:" + get_profile.find("img")["src"],
+        "level": get_level.getText().replace("레벨: ", ""),
+    }
