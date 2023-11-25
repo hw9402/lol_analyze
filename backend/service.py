@@ -16,7 +16,6 @@ def getRankInfo(name: str):
     solo_rank_info = soup.select_one(
         "#content-container > div:nth-child(1) > div:nth-child(2) > div.table_summary > div:nth-child(2)")
     solo_rank_summary = solo_rank_info.get_text().strip().split("\t\t\t")
-    print(solo_rank_summary)
 
     if len(solo_rank_summary) == 6:
         solo_rank_data["img"] = "https:" + solo_rank_info.select_one("div:nth-child(1)").find("img")["src"]
@@ -38,5 +37,4 @@ def getRankInfo(name: str):
     else:
         flex_rank_data["error"] = "배치중"
 
-    print(solo_rank_data)
-    print(flex_rank_data)
+    return {"solo_rank_info": solo_rank_data, "flex_rank_info": flex_rank_data}
