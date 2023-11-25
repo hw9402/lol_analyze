@@ -3,8 +3,7 @@ from bs4 import BeautifulSoup
 
 
 def getLoLHistory(name: str):
-    # return getRankInfo(name)
-    return getRecentRecord(name)
+    return {"rank": getRankInfo(name), "most": getRecentRecord(name)}
 
 
 def getRankInfo(name: str):
