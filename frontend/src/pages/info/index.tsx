@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getHomeInfo } from "../../apis";
-import { useParams } from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import styled from "styled-components";
 import {MostType, RankType, rankTypeDefault} from "./type";
 import RankInfo from "../../components/info/RankInfo";
@@ -52,10 +52,12 @@ const Info = () => {
             />
           </RankInfoWrap>
           <MostWrap>
-            {most.map((value: MostType) => (
-              <MostInfo
-                mostInfo ={ value }
-              />
+            {most.map((value: MostType, index: number) => (
+                <Link to={`/${name}/${index + 1}`} target="_black" >
+                  <MostInfo
+                      mostInfo = { value }
+                  />
+                </Link>
             ))}
           </MostWrap>
           <Home

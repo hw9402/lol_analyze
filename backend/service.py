@@ -1,22 +1,63 @@
+import json
 import requests
 from bs4 import BeautifulSoup
 
 
 def getLoLHistory(name: str):
     return {
-        "profile": getProfile(name),
         "rank": getRankInfo(name),
-        "most": getRecentRecord(name)
+        "most": getMost(name)
+    }
+
+
+def getUserMostDetails(name: str, most_number: int):
+    most = getMost(name)[most_number-1]
+    champion_list_file = open("./champion.json", "r")
+    champion_list = json.load(champion_list_file)
+    champion_name = champion_list[most["name"]]
+
+    response = requests.get(f"https://fow.kr/stats/{champion_name}")
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    get_champion_data = soup.select_one("#counter_info > div.basic_info > table > tbody")
+
+    champion_avg_stats = {
+        "win_rate": get_champion_data.select_one("tr:nth-child(1) > td:nth-child(2)").get_text().replace("\n", "").replace("%", ""),
+        "kda": get_champion_data.select_one("tr:nth-child(5) > td:nth-child(2)").get_text().replace("\n", ""),
+        "avg_kill": get_champion_data.select_one("tr:nth-child(6) > td:nth-child(2)").get_text().replace("\n", ""),
+        "avg_death": get_champion_data.select_one("tr:nth-child(7) > td:nth-child(2)").get_text().replace("\n", ""),
+        "avg_assist": get_champion_data.select_one("tr:nth-child(8) > td:nth-child(2)").get_text().replace("\n", ""),
+        "avg_gold": get_champion_data.select_one("tr:nth-child(9) > td:nth-child(2)").get_text().replace("\n", "").replace(",", ""),
+        "avg_cs": get_champion_data.select_one("tr:nth-child(12) > td:nth-child(2)").get_text().replace("\n", ""),
+    }
+
+    most_avg_stats = {
+        "win_rate": most["win_rate"].replace("%", ""),
+        "kda": most["kda"],
+        "avg_kill": most["avg_kill"],
+        "avg_death": most["avg_death"],
+        "avg_assist": most["avg_assist"],
+        "avg_gold": most["avg_gold"].replace(",", ""),
+        "avg_cs": most["avg_cs"]
+    }
+
+    return {
+        "labels": list(champion_avg_stats.keys()),
+        # "champion_avg_stats_list": list(float(value) for value in champion_avg_stats.values()),
+        # "most_avg_stats_list": list(float(value) for value in most_avg_stats.values()),
+        "champion_avg_stats_list": list(champion_avg_stats.values()),
+        "most_avg_stats_list": list(most_avg_stats.values()),
+        "champion_name": most["name"]
     }
 
 
 def getRankInfo(name: str):
     response = requests.get(f"https://fow.kr/find/{name}")
+    soup = BeautifulSoup(response.text, "html.parser")
 
     solo_rank_data = {}
     flex_rank_data = {}
 
-    soup = BeautifulSoup(response.text, "html.parser")
     solo_rank_info = soup.select_one(
         "#content-container > div:nth-child(1) > div:nth-child(2) > div.table_summary > div:nth-child(2)")
     solo_rank_summary = solo_rank_info.get_text().strip().split("\t\t\t")
@@ -44,7 +85,7 @@ def getRankInfo(name: str):
     return {"solo_rank_info": solo_rank_data, "flex_rank_info": flex_rank_data}
 
 
-def getRecentRecord(name: str):
+def getMost(name: str):
     response = requests.get(f"https://fow.kr/find/{name}")
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -59,7 +100,6 @@ def getRecentRecord(name: str):
     for k, v in {0: first, 1: second, 2: third}.items():
         top_3_most[k] = {
             "name": v.select_one("td:nth-child(1)").get_text().strip(),
-            "img": "https:" + v.select_one("td:nth-child(1)").find("img")["src"],
             "count": v.select_one("td:nth-child(2)").get_text(),
             "win_rate": v.select_one("td:nth-child(3)").get_text(),
             "win": v.select_one("td:nth-child(13)").get_text(),
@@ -76,18 +116,3 @@ def getRecentRecord(name: str):
         }
 
     return top_3_most
-
-
-def getProfile(name: str):
-    response = requests.get(f"https://fow.kr/find/{name}")
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    get_profile = soup.select_one(
-        "#content-container > div:nth-child(1) > div:nth-child(2) > div.topp > div.profile > div:nth-child(1)")
-    get_level = soup.select_one(
-        "#content-container > div:nth-child(1) > div:nth-child(2) > div.topp > div.profile > div:nth-child(2) > a:nth-child(1) > span")
-
-    return {
-        "profile_image": "https:" + get_profile.find("img")["src"],
-        "level": get_level.getText().replace("레벨: ", ""),
-    }
