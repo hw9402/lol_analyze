@@ -53,7 +53,7 @@ const Info = () => {
           </RankInfoWrap>
           <MostWrap>
             {most.map((value: MostType, index: number) => (
-                <Link to={`/${name}/${index + 1}`} target="_black" >
+                <Link to={`/${name}/${index + 1}`} >
                   <MostInfo
                       mostInfo = { value }
                   />
